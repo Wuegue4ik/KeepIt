@@ -1,20 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
 from datetime import datetime
+from src.database import schemas
 
-
-class NoteBase(BaseModel):
-    header: str = Field(max_length=50)
-    text: str | None = None
-    tags: list[str] = []
-
-
-class Note(NoteBase):
-    id: int
-    created_at: datetime
-
-
-notes_db: dict[int, Note] = {}
+notes_db: dict[int, schemas.Note] = {}
 
 router = APIRouter()
 
@@ -41,9 +29,9 @@ async def view_note(note_id: int):
     return note
 
 @router.post("/notes")
-async def add_note(note_data: NoteBase):
+async def add_note(note_data: schemas.NoteBase):
     new_id = len(notes_db) + 1
-    temp_note: Note = Note(
+    temp_note: schemas.Note = schemas.Note(
         id=new_id,
         header=note_data.header,
         text=note_data.text,
@@ -55,7 +43,7 @@ async def add_note(note_data: NoteBase):
     return temp_note
 
 @router.put("/notes/{note_id}")
-async def edit_note(note_id: int, note_data: NoteBase):
+async def edit_note(note_id: int, note_data: schemas.NoteBase):
     note = notes_db.get(note_id)
     if not note:
         raise HTTPException(status_code=404, detail="Note not found")
