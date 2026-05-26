@@ -15,6 +15,7 @@ pkgs.mkShell {
     # DB
     python312Packages.sqlalchemy
     python312Packages.asyncpg
+    python312Packages.psycopg2-binary
     python312Packages.alembic
     python312Packages.greenlet
 
