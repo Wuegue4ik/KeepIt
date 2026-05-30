@@ -19,8 +19,9 @@ pkgs.mkShell {
     python312Packages.alembic
     python312Packages.greenlet
 
-    # Idk errors checking stuf???
+    # Extras
     python312Packages.mypy
+    python312Packages.python-dotenv
 
     # Iron Maiden - The Trooper
     nodejs_20

@@ -14,8 +14,7 @@ class Tag(TagBase):
 
 class NoteBase(BaseModel):
     header: str = Field(max_length=50)
-    text: str | None = None
-    
+    text: str | None = None    
 
 
 class NoteOnCreate(NoteBase):
