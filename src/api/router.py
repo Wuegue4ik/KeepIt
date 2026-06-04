@@ -1,6 +1,14 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from datetime import datetime
+
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.database import schemas
+from src.database.schemas import Note as Pydantic_Note
+from src.database.models import Note as DB_Note
+from src.database.database import get_db
 
 notes_db: dict[int, schemas.Note] = {}
 
@@ -18,7 +26,6 @@ async def get_notes(tag: str | None = None):
     filtered_notes = [note for note in notes_db.values() if tag in note.tags]
     
     return filtered_notes
-
 
 @router.get("/notes/{note_id}")
 async def view_note(note_id: int):

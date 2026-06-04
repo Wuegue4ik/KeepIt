@@ -2,7 +2,8 @@ from fastapi import FastAPI, Request, Response, BackgroundTasks
 from datetime import datetime
 import time
 
-from src.api.router import router
+from src.api.router import router as Router
+from src.api.db_router import router as DB_Router
 
 def write_log(message: str):
     with open("logs.txt", "a", encoding="utf-8") as f:
@@ -27,4 +28,5 @@ async def log_function(request: Request, call_next):
     response.background = background_tasks
     return response
 
-app.include_router(router, tags=["StartUpRouting"])
+app.include_router(Router, tags=["MVP Routing"])
+app.include_router(DB_Router, tags=["Routers with DB"])
