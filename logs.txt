@@ -24,3 +24,15 @@
 [2026-06-02 17:12:12] Request to "/openapi.json" took 0.03376436233520508 s. | GET
 [2026-06-02 17:12:38] Request to "/docs" took 0.0006334781646728516 s. | GET
 [2026-06-02 17:12:39] Request to "/openapi.json" took 0.02472686767578125 s. | GET
+[2026-06-04 22:38:30] Request to "/" took 0.0009884834289550781 s. | GET
+[2026-06-04 22:38:30] Request to "/favicon.ico" took 0.0003609657287597656 s. | GET
+[2026-06-04 22:38:34] Request to "/docs" took 0.00015974044799804688 s. | GET
+[2026-06-04 22:38:34] Request to "/openapi.json" took 0.009921550750732422 s. | GET
+[2026-06-04 22:43:35] Request to "/db/notes" took 0.04020118713378906 s. | GET
+[2026-06-04 22:56:57] Request to "/db/notes" took 0.03622889518737793 s. | POST
+[2026-06-04 23:17:02] Request to "/db/notes" took 0.00806427001953125 s. | GET
+[2026-06-04 23:19:12] Request to "/db/notes" took 0.01604771614074707 s. | POST
+[2026-06-04 23:19:16] Request to "/db/notes" took 0.0035314559936523438 s. | GET
+[2026-06-04 23:19:45] Request to "/db/notes/1" took 0.003930807113647461 s. | GET
+[2026-06-04 23:19:51] Request to "/db/notes/3" took 0.0025320053100585938 s. | GET
+[2026-06-04 23:19:56] Request to "/db/notes/42" took 0.0024056434631347656 s. | GET

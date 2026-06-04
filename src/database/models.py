@@ -1,3 +1,4 @@
+from datetime import datetime
 from src.database.database import DB_Base
 from sqlalchemy import Column, Integer, String, Text, DateTime, Table, ForeignKey
 from sqlalchemy.orm import relationship
@@ -16,7 +17,7 @@ class Note(DB_Base):
     id = Column(Integer, primary_key=True)
     header = Column(String(50), nullable=False)
     text = Column(Text)
-    created_at = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.now)
 
     tags = relationship("Tag", secondary=notes_tags, back_populates="notes")
 
