@@ -9,6 +9,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
+async def update_note_tags(note: DB_Note, new_tags: list[str], db: AsyncSession):
+    pass
+
 router = APIRouter(prefix="/db")
 
 @router.get("/notes", response_model=list[Pydantic_Note])
@@ -55,7 +58,54 @@ async def add_note_db(note_data: schemas.NoteOnCreate, db: AsyncSession = Depend
 
     db.add(new_note)
     await db.commit()
-
     await db.refresh(new_note, attribute_names=["tags"])
 
     return new_note
+
+@router.put("/notes/{note_id}", response_model=Pydantic_Note)
+async def edit_note_db(note_id: int, note_data: schemas.NoteOnCreate, db: AsyncSession = Depends(get_db)):
+    query = select(DB_Note).options(selectinload(DB_Note.tags)).where(DB_Note.id==note_id)
+    result = await db.execute(query)
+    note: DB_Note = result.scalars().first()
+
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found!")
+    
+    note.header = note_data.header
+    note.text = note_data.text
+
+    if note.tags != note_data.tags:
+        tags = list(set(note_data.tags))
+
+        query = select(DB_Tag).where(DB_Tag.name.in_(tags))
+        result = await db.execute(query)
+
+        existing_tags = {tag.name: tag for tag in result.scalars().all()}
+        final_tags = []
+
+        for tag in tags:
+            if tag in existing_tags:
+                final_tags.append(existing_tags[tag])
+            else:
+                new_tag = DB_Tag(name=tag)
+                final_tags.append(new_tag)
+
+        note.tags = final_tags
+
+    await db.commit()
+    await db.refresh(note, attribute_names=["tags"])
+
+    return note
+
+@router.delete("/notes/{note_id}")
+async def delete_note_db(note_id: int, db: AsyncSession = Depends(get_db)):
+    query = select(DB_Note).where(DB_Note.id==note_id)
+    result = await db.execute(query)
+    note = result.scalars().first()
+
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found!")
+    
+    await db.delete(note)
+    await db.commit()
+    return {"message": "Note deleted successfully!"}

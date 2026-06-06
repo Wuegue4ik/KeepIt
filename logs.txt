@@ -36,3 +36,11 @@
 [2026-06-04 23:19:45] Request to "/db/notes/1" took 0.003930807113647461 s. | GET
 [2026-06-04 23:19:51] Request to "/db/notes/3" took 0.0025320053100585938 s. | GET
 [2026-06-04 23:19:56] Request to "/db/notes/42" took 0.0024056434631347656 s. | GET
+[2026-06-06 15:08:19] Request to "/db/notes" took 0.1360316276550293 s. | GET
+[2026-06-06 17:58:53] Request to "/docs" took 0.0006852149963378906 s. | GET
+[2026-06-06 17:58:53] Request to "/openapi.json" took 0.028550148010253906 s. | GET
+[2026-06-06 17:59:28] Request to "/db/notes" took 0.11740255355834961 s. | GET
+[2026-06-06 18:03:17] Request to "/db/notes/2" took 0.10930204391479492 s. | DELETE
+[2026-06-06 18:03:31] Request to "/db/notes" took 0.09749436378479004 s. | GET
+[2026-06-06 18:04:03] Request to "/db/notes" took 0.03648209571838379 s. | POST
+[2026-06-06 18:04:21] Request to "/db/notes" took 0.0091552734375 s. | GET
