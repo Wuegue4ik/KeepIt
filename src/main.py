@@ -1,9 +1,11 @@
-from fastapi import FastAPI, Request, Response, BackgroundTasks
-from datetime import datetime
 import time
+from src.config import settings
+from fastapi import FastAPI, Request, Response, BackgroundTasks
+from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
+from typing import Callable, Awaitable
 
 from src.api.router import router as Router
-from src.api.db_router import router as DB_Router
 
 def write_log(message: str):
     with open("logs.txt", "a", encoding="utf-8") as f:
@@ -11,11 +13,22 @@ def write_log(message: str):
 
 app = FastAPI(
     title="NotesManagerService",
-    version="0.0.3"
+    version="0.0.4"
 )
 
+if settings.CORS_ORIGINS:
+    cors_origins = [str(url).rstrip("/") for url in settings.CORS_ORIGINS]
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cors_origins,
+        allow_credentials=True,
+        allow_methods=["*"],  
+        allow_headers=["*"],  
+    )
+
 @app.middleware("http")
-async def log_function(request: Request, call_next):
+async def log_function(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
     background_tasks: BackgroundTasks = BackgroundTasks()
     before_r_time: float = time.time()
 
@@ -28,5 +41,4 @@ async def log_function(request: Request, call_next):
     response.background = background_tasks
     return response
 
-app.include_router(Router, tags=["MVP Routing"])
-app.include_router(DB_Router, tags=["Routers with DB"])
+app.include_router(Router, tags=["Routers"])

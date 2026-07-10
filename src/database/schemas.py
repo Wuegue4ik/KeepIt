@@ -3,7 +3,7 @@ from datetime import datetime
 
 
 class TagBase(BaseModel):
-    name: str
+    name: str = Field(max_length=50)
 
 
 class Tag(TagBase):
@@ -14,7 +14,7 @@ class Tag(TagBase):
 
 class NoteBase(BaseModel):
     header: str = Field(max_length=50)
-    text: str | None = None    
+    text: str | None = None
 
 
 class NoteOnCreate(NoteBase):
@@ -24,6 +24,6 @@ class NoteOnCreate(NoteBase):
 class Note(NoteBase):
     id: int
     created_at: datetime
-    tags: list[Tag] = []
+    tags: list[Tag]
 
     model_config = ConfigDict(from_attributes=True)

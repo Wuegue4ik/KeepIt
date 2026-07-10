@@ -1,10 +1,7 @@
 import sys
 import os
 import asyncio
-import warnings
 from logging.config import fileConfig
-
-from dotenv import load_dotenv
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
@@ -12,23 +9,11 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from src.config import settings
 from src.database.database import DB_Base
-from src.database.models import Note, Tag, notes_tags
-
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-load_dotenv()
-
-try:
-    DB_LOGIN = os.environ["DB_LOGIN"]
-    DB_PASSWORD = os.environ["DB_PASSWORD"]
-    DB_HOST = os.environ["DB_HOST"]
-    DB_PORT = os.environ["DB_PORT"]
-    DB_NAME = os.environ["DB_NAME"]
-except KeyError as e:
-    warnings.warn(f"[Env Error] .env variable {e} not found")
-    sys.exit(1)
-
-DATABASE_URL = f"postgresql+asyncpg://{DB_LOGIN}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+from src.database.models import Note, Tag, NoteTag  # type: ignore
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -50,7 +35,7 @@ target_metadata = DB_Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-config.set_main_option("sqlalchemy.url", DATABASE_URL)
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 
 def run_migrations_offline() -> None:
