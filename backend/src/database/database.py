@@ -10,7 +10,7 @@ class DB_Base(DeclarativeBase):
     pass
 
 
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(DATABASE_URL, echo=False)
 
 async_session_maker = async_sessionmaker(
     bind=engine, 

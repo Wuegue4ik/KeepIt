@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.schemas import Note as Pydantic_Note, NoteOnCreate
-from src.database.models import Note as DB_Note, Tag as DB_Tag, NoteTag
+from src.database.models import Note as DB_Note, Tag as DB_Tag, NoteTag as DB_NoteTag
 from src.database.database import get_db
 
 router = APIRouter()
@@ -33,7 +33,7 @@ async def update_note_tags(note: DB_Note, new_tag_names: list[str] | None, db: A
 @router.get("/notes", response_model=list[Pydantic_Note])
 async def get_notes(db: AsyncSession = Depends(get_db)):
     query = select(DB_Note).options(
-        selectinload(DB_Note.note_tags).selectinload(NoteTag.tag)
+        selectinload(DB_Note.note_tags).selectinload(DB_NoteTag.tag)
     )
     result = await db.execute(query)
     return result.scalars().all()
@@ -41,7 +41,7 @@ async def get_notes(db: AsyncSession = Depends(get_db)):
 @router.get("/notes/{note_id}", response_model=Pydantic_Note)
 async def view_note(note_id: int, db: AsyncSession = Depends(get_db)):
     query = select(DB_Note).options(
-        selectinload(DB_Note.note_tags).selectinload(NoteTag.tag)
+        selectinload(DB_Note.note_tags).selectinload(DB_NoteTag.tag)
     ).where(DB_Note.id == note_id)
     result = await db.execute(query)
     note = result.scalars().first()
@@ -61,7 +61,7 @@ async def add_note(note_data: NoteOnCreate, db: AsyncSession = Depends(get_db)):
     await db.commit()
 
     query = select(DB_Note).options(
-        selectinload(DB_Note.note_tags).selectinload(NoteTag.tag)
+        selectinload(DB_Note.note_tags).selectinload(DB_NoteTag.tag)
     ).where(DB_Note.id == new_note.id)
     
     result = await db.execute(query)
@@ -70,7 +70,7 @@ async def add_note(note_data: NoteOnCreate, db: AsyncSession = Depends(get_db)):
 @router.put("/notes/{note_id}", response_model=Pydantic_Note)
 async def edit_note(note_id: int, note_data: NoteOnCreate, db: AsyncSession = Depends(get_db)):
     query = select(DB_Note).options(
-        selectinload(DB_Note.note_tags).selectinload(NoteTag.tag)
+        selectinload(DB_Note.note_tags).selectinload(DB_NoteTag.tag)
     ).where(DB_Note.id == note_id)
     result = await db.execute(query)
     note = result.scalars().first()
@@ -101,5 +101,9 @@ async def delete_note(note_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Note not found!")
     
     await db.delete(note)
+    await db.flush()
+
+    clean_tags_query = delete(DB_Tag).where(~DB_Tag.id.in_(select(DB_NoteTag.tag_id).distinct()))
+    await db.execute(clean_tags_query)
     await db.commit()
     return {"message": "Note deleted successfully!"}

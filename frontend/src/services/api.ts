@@ -1,8 +1,7 @@
 import axios from 'axios';
-import { env } from '@/config/env';
 
 const api = axios.create({
-  baseURL: env.VITE_API_URL,
+  baseURL: "http://127.0.0.1:8000",
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
