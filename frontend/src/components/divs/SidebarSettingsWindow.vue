@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import EditIcon from '../svgs/EditIcon.vue';
+import SettingsIcon from '../svgs/SettingsIcon.vue';
 import DeleteIcon from '../svgs/DeleteIcon.vue';
 import BaseButton from '../buttons/BaseButton.vue';
 import { computed } from 'vue';
@@ -17,7 +18,11 @@ const modalStyle = computed(() => {
   }
 })
 
-defineEmits(['close'])
+defineEmits<{
+  (e: 'close'): void,
+  (e: 'rename'): void,
+  (e: 'delete'): void
+}>()
 
 </script>
 
@@ -30,16 +35,33 @@ defineEmits(['close'])
     <div class="fixed inset-0 -z-10" @click="$emit('close')"/>
 
     <div>
-      <slot>
-        <BaseButton variant="settings" class="w-full flex">
+      <!-- Rename -->
+        <BaseButton
+          variant="settings"
+          class="w-full flex"
+          @click="$emit('rename')"
+        >
           <EditIcon class="w-6 h-5 mr-2"/>
           <span>Rename</span>
         </BaseButton>
-        <BaseButton variant="settings" class="w-full flex">
+      <!-- Configure -->
+        <BaseButton
+          variant="settings"
+          class="w-full flex"
+          @click="$emit('delete')"
+        >
+          <SettingsIcon class="w-6 h-5 mr-2"/>
+          <span>Configure</span>
+        </BaseButton>
+      <!-- Delete -->
+        <BaseButton
+          variant="settings"
+          class="w-full flex"
+          @click="$emit('delete')"
+        >
           <DeleteIcon class="w-6 h-5 mr-2 text-red-600"/>
           <span class="text-red-600">Delete</span>
         </BaseButton>
-      </slot>
     </div>
   </div>
 </template>

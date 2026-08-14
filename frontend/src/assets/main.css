@@ -5,10 +5,6 @@
 }
 
 @layer utilities {
-  .modal-bg {
-    @apply fixed top-0 left-0 w-full h-full bg-stone-900/10 dark:bg-stone-100/10 transition-all duration-300 z-10
-  }
-
   .custom-scrollbar {
     scrollbar-color: var(--color-stone-400) transparent;
   }

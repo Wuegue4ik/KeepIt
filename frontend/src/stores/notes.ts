@@ -53,7 +53,7 @@ export const useNotesStore = defineStore('notes', () => {
     }
   }
 
-  const deleteNote = async (noteId: number) => {
+  const deleteNote = async (noteId: number | undefined) => {
     error.value = null
 
     try {

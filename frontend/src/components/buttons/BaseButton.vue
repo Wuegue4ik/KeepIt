@@ -2,7 +2,7 @@
 import { computed } from 'vue';  
 
 interface Props {
-  variant?: "primary" | "secondary" | "sidebar" | "settings"
+  variant?: "primary" | "secondary" | "sidebar" | "settings" | "delete"
   disabled?: boolean
   loading?: boolean
 }
@@ -15,9 +15,10 @@ const props = withDefaults(defineProps<Props>(), {
 
 const variantClasses = {
   "primary": "items-center font-bold bg-amber-400 dark:bg-amber-600 hover:bg-amber-500 text-white dark:text-stone-900 rounded-xl transition-all duration-200",
-  "secondary": "items-center font-medium text-stone-400 dark:text-stone-600 hover:text-stone-700 dark:hover:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-800 rounded-xl transition-all duration-200",
+  "secondary": "items-center font-medium text-stone-400 dark:text-stone-600 hover:text-stone-700 dark:hover:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-xl transition-all duration-200",
   "sidebar": "items-center font-normal text-left text-stone-800 dark:text-stone-200 p-2 hover:bg-stone-200 dark:hover:bg-stone-800 rounded-lg overflow-hidden",
-  "settings": "items-center font-normal text-left text-stone-800 dark:text-stone-200 p-2 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-lg overflow-hidden"
+  "settings": "items-center font-normal text-left text-stone-800 dark:text-stone-200 p-2 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-lg overflow-hidden",
+  "delete": "items-center font-bold bg-rose-500 hover:bg-rose-600 dark:hover:bg-rose-400 text-white dark:text-stone-900 rounded-xl transition-all duration-200"
 }
 
 const buttonClasses = computed(() => [
