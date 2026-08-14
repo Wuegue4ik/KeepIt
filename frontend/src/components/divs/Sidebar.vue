@@ -16,7 +16,7 @@ const selectedNoteId = ref<number>()
 const selectedNoteHeader = ref()
 
 const notesStore = useNotesStore()
-const { notes, error, isLoading } = storeToRefs(notesStore)
+const { storedNotes, error, isLoading } = storeToRefs(notesStore)
 const { fetchNotes, deleteNote } = notesStore
 const show = defineModel<boolean>('show', {required: true})
 
@@ -153,7 +153,7 @@ onMounted(() => {
       </div>
 
       <div v-else class="overflow-y-auto custom-scrollbar">
-        <div v-if="notes.length === 0" class="empty-state">
+        <div v-if="storedNotes.length === 0" class="empty-state">
           <div class="p-3 bg-stone-50 dark:bg-stone-950/40 border border-stone-200 dark:border-stone-900/50 rounded-xl">
             <p class="text-xs font-semibold text-stone-600 dark:text-stone-400 mb-1">
               You have no notes.
@@ -164,9 +164,9 @@ onMounted(() => {
           </div>
         </div>
 
-        <div v-else-if="notes.length > 0" class="">
+        <div v-else-if="storedNotes.length > 0" class="">
           <SidebarButton
-            v-for="note in notes"
+            v-for="note in storedNotes"
             :key="note.id"
             @settings-click="handleSettingsClick(note.id, note.header,$event)"
           >

@@ -9,8 +9,28 @@ export const useNotesStore = defineStore('notes', () => {
   const error = ref<string | null>(null)
   const totalNotes = computed(() => notes.value.length)
 
-  const fetchNotes = async() => {
-    isLoading.value = true
+  const storedNotes = computed(() => {
+    return[...notes.value].sort((a, b) => {
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    })
+  })
+
+  const channel = new BroadcastChannel('notes_sync_channel')
+
+  channel.onmessage = (ev) => {
+    if (ev.data === "sync_notes") {
+      fetchNotes(true)
+    }
+  }
+
+  const syncNotes = () => {
+    channel.postMessage("sync_notes")
+  }
+
+  const fetchNotes = async(isBackground = false) => {
+    if (!isBackground) {
+      isLoading.value = true
+    }
     error.value = null
 
     try {
@@ -30,6 +50,7 @@ export const useNotesStore = defineStore('notes', () => {
     try {
       const response = await api.post<Note>("/notes", newNoteData)
       notes.value.unshift(response.data)
+      syncNotes()
     } catch (err: any) {
       console.error("Error adding note:", err)
       error.value = "Failed to add new note!"
@@ -46,6 +67,7 @@ export const useNotesStore = defineStore('notes', () => {
       if (index !== -1) {
         notes.value[index] = response.data
       }
+      syncNotes()
     } catch (err: any) {
       console.error("Error editing note:", err)
       error.value = "Failed to edit note!"
@@ -59,6 +81,7 @@ export const useNotesStore = defineStore('notes', () => {
     try {
       await api.delete(`/notes/${noteId}`)
       notes.value = notes.value.filter(note => note.id !== noteId)
+      syncNotes()
     } catch (err: any) {
       console.error("Error deleting note:", err)
       error.value = "Failed to delete note!"
@@ -67,6 +90,7 @@ export const useNotesStore = defineStore('notes', () => {
 
   return {
     notes,
+    storedNotes,
     isLoading,
     error,
     totalNotes,

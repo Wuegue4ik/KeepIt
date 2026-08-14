@@ -22,10 +22,6 @@ const initialFormData = {
 
 const formData = reactive({ ...initialFormData })
 
-const props = defineProps<{
-  noteToEdit?: Note | null
-}>()
-
 const emit = defineEmits<{
   (e: 'close'): void
 }>()
@@ -59,6 +55,7 @@ const handleSubmit = async() => {
 
     await notesStore.addNote(payload)
     emit('close')
+    resetForm()
   } catch (err: any) {
     localError.value = err.response?.data?.detail || "Failed to save the note."
   } finally {
