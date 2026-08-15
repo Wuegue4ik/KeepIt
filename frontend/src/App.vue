@@ -6,6 +6,7 @@ import NoteModal from './components/divs/NoteModal.vue';
 import BaseButton from './components/buttons/BaseButton.vue';
 import Sidebar from './components/divs/Sidebar.vue';
 import SidebarIcon from './components/svgs/SidebarIcon.vue';
+import { toast } from 'vue3-toastify';
 
 const isSidebarOpen = ref(false)
 const isModalOpen = ref(false)
@@ -69,7 +70,7 @@ onKeyStroke('k', (e) => {
     <NoteModal
       v-model:show="isNoteModalOpen"
       v-model:settings="isSettingsExtended"
-      @close="isNoteModalOpen = false"
+      @close="isNoteModalOpen = false; toast.success('Note successfully created.')"
     />
 
     <BaseButton class="m-1 border border-stone-200 dark:border-stone-800" variant="sidebar" @click="isSidebarOpen = !isSidebarOpen">

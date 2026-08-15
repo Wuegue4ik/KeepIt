@@ -8,6 +8,7 @@ import { useNotesStore } from '@/stores/notes.ts';
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 import NoteDeletionWindow from './NoteDeletionWindow.vue';
+import { toast } from 'vue3-toastify';
 
 const isModalOpen = defineModel<boolean>('is-modal-open', {required: true})
 const isDeleteModalOpen = defineModel<boolean>('is-delete-modal-open', {required: true})
@@ -31,6 +32,7 @@ const tryToDeleteNote = () => {
     const noteId = selectedNoteId.value
     deleteNote(noteId)
     isDeleteModalOpen.value = false
+    toast.success("Note successfully deleted.")
   } catch (err: any) {
     console.error("Error deleting note:", err)
   }
