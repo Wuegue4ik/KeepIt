@@ -38,5 +38,5 @@ class Settings(BaseSettings):
 try:
     settings = Settings()                      # type: ignore
 except Exception as e:
-    warn(f"[Env Configuration Error]: Ошибка в файле .env!\n{e}")
+    warn(f"[Env Configuration Error]:\n{e}")
     sys.exit(1)

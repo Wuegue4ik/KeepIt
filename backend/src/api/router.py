@@ -3,13 +3,16 @@ import redis.asyncio as aioredis
 
 from typing import AsyncGenerator
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
-from sqlalchemy import select, delete, func
+from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.schemas import PaginatedNotesResponse, Note as Pydantic_Note, NoteOnCreate
 from src.database.models import Note as DB_Note, Tag as DB_Tag, NoteTag as DB_NoteTag
 from src.database.database import get_db
+
+def note_redis_key(key: int) -> str:
+    return f"notes:{key}"
 
 async def get_redis(request: Request) -> AsyncGenerator[aioredis.Redis, None]:
     yield request.app.state.redis
@@ -71,7 +74,7 @@ async def view_note(
         db: AsyncSession = Depends(get_db),
         redis: aioredis.Redis = Depends(get_redis)
     ):
-    cache_key = f"notes:{note_id}"
+    cache_key = note_redis_key(note_id)
     cached_note = await redis.get(cache_key)
     if cached_note:
         return json.loads(cached_note)
@@ -90,7 +93,7 @@ async def view_note(
     await redis.set(
         cache_key,
         validate_note.model_dump_json(),
-        ex=60
+        ex=1800
     )
     return note
 
@@ -115,7 +118,12 @@ async def add_note(
     return result.scalars().first()
 
 @router.put("/notes/{note_id}", response_model=Pydantic_Note)
-async def edit_note(note_id: int, note_data: NoteOnCreate, db: AsyncSession = Depends(get_db)):
+async def edit_note(
+        note_id: int,
+        note_data: NoteOnCreate,
+        db: AsyncSession = Depends(get_db),
+        redis: aioredis.Redis = Depends(get_redis)
+    ):
     query = select(DB_Note).options(
         selectinload(DB_Note.note_tags).selectinload(DB_NoteTag.tag)
     ).where(DB_Note.id == note_id)
@@ -136,10 +144,17 @@ async def edit_note(note_id: int, note_data: NoteOnCreate, db: AsyncSession = De
 
     await db.commit()
     await db.refresh(note, attribute_names=["note_tags"])
+
+    await redis.delete(note_redis_key(note_id))
+
     return note
 
 @router.delete("/notes/{note_id}")
-async def delete_note(note_id: int, db: AsyncSession = Depends(get_db)):
+async def delete_note(
+        note_id: int,
+        db: AsyncSession = Depends(get_db),
+        redis: aioredis.Redis = Depends(get_redis)
+    ):
     query = select(DB_Note).where(DB_Note.id == note_id)
     result = await db.execute(query)
     note = result.scalars().first()
@@ -148,9 +163,8 @@ async def delete_note(note_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Note not found!")
     
     await db.delete(note)
-    await db.flush()
-
-    clean_tags_query = delete(DB_Tag).where(~DB_Tag.id.in_(select(DB_NoteTag.tag_id).distinct()))
-    await db.execute(clean_tags_query)
     await db.commit()
+
+    await redis.delete(note_redis_key(note_id))
+
     return {"message": "Note deleted successfully!"}
