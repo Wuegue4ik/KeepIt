@@ -59,6 +59,32 @@ export type NoteOnCreate = {
 };
 
 /**
+ * PaginatedNotesResponse
+ */
+export type PaginatedNotesResponse = {
+    /**
+     * Items
+     */
+    items: Array<Note>;
+    /**
+     * Total
+     */
+    total: number;
+    /**
+     * Page
+     */
+    page: number;
+    /**
+     * Size
+     */
+    size: number;
+    /**
+     * Pages
+     */
+    pages: number;
+};
+
+/**
  * Tag
  */
 export type Tag = {
@@ -103,17 +129,37 @@ export type ValidationError = {
 export type GetNotesNotesGetData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Page
+         *
+         * Page number (starts with 1)
+         */
+        page?: number;
+        /**
+         * Size
+         *
+         * Number of items per page
+         */
+        size?: number;
+    };
     url: '/notes';
 };
 
+export type GetNotesNotesGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetNotesNotesGetError = GetNotesNotesGetErrors[keyof GetNotesNotesGetErrors];
+
 export type GetNotesNotesGetResponses = {
     /**
-     * Response Get Notes Notes Get
-     *
      * Successful Response
      */
-    200: Array<Note>;
+    200: PaginatedNotesResponse;
 };
 
 export type GetNotesNotesGetResponse = GetNotesNotesGetResponses[keyof GetNotesNotesGetResponses];

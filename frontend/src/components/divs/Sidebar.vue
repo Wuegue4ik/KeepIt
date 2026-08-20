@@ -3,68 +3,72 @@ import SidebarIcon from '../svgs/SidebarIcon.vue';
 import BaseButton from '../buttons/BaseButton.vue';
 import SidebarButton from '../buttons/SidebarButton.vue';
 import SidebarSettingsWindow from './SidebarSettingsWindow.vue';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useNotesStore } from '@/stores/notes.ts';
 import { storeToRefs } from 'pinia';
-import { onMounted } from 'vue';
 import NoteDeletionWindow from './NoteDeletionWindow.vue';
 import { toast } from 'vue3-toastify';
 
-const isModalOpen = defineModel<boolean>('is-modal-open', {required: true})
-const isDeleteModalOpen = defineModel<boolean>('is-delete-modal-open', {required: true})
-const modalPosition = ref({top: 0, left: 0})
-const selectedNoteId = ref<number>()
-const selectedNoteHeader = ref()
+const isModalOpen = defineModel<boolean>('is-modal-open', { required: true });
+const isDeleteModalOpen = defineModel<boolean>('is-delete-modal-open', { required: true });
+const modalPosition = ref({ top: 0, left: 0 });
+const selectedNoteId = ref<number>();
+const selectedNoteHeader = ref<string>('');
 
-const notesStore = useNotesStore()
-const { storedNotes, error, isLoading } = storeToRefs(notesStore)
-const { fetchNotes, deleteNote } = notesStore
-const show = defineModel<boolean>('show', {required: true})
+const notesStore = useNotesStore();
+const { error, isLoading, isFinished, storedNotes } = storeToRefs(notesStore);
+const { fetchNextNotes, deleteNote } = notesStore;
+const show = defineModel<boolean>('show', { required: true });
 
 const handleDeleteClick = () => {
-  isDeleteModalOpen.value = true
-  isModalOpen.value = false
-  show.value = false
-}
+  isDeleteModalOpen.value = true;
+  isModalOpen.value = false;
+};
 
 const tryToDeleteNote = () => {
   try {
-    const noteId = selectedNoteId.value
-    deleteNote(noteId)
-    isDeleteModalOpen.value = false
-    toast.success("Note successfully deleted.")
+    const noteId = selectedNoteId.value;
+    deleteNote(noteId);
+    isDeleteModalOpen.value = false;
+    toast.success("Note successfully deleted.");
   } catch (err: any) {
-    console.error("Error deleting note:", err)
+    console.error("Error deleting note:", err);
   }
-}
+};
 
 const handleSettingsClick = (noteId: number, noteHeader: string, event: MouseEvent) => {
-  const target = event.currentTarget as HTMLElement
-  const rect = target.getBoundingClientRect()
+  const target = event.currentTarget as HTMLElement;
+  const rect = target.getBoundingClientRect();
 
   modalPosition.value = {
     top: rect.bottom + 4,
     left: rect.left
-  }
-  selectedNoteId.value = noteId
-  selectedNoteHeader.value = noteHeader
+  };
+  selectedNoteId.value = noteId;
+  selectedNoteHeader.value = noteHeader;
 
-  isModalOpen.value = true
-}
+  isModalOpen.value = true;
+};
 
 defineEmits<{
   (e: 'new-note-click'): void,
   (e: 'search-click'): void
-}>()
+}>();
 
 onMounted(() => {
-  fetchNotes()
-})
+  if (storedNotes.value.length === 0) {
+    fetchNextNotes();
+  }
+});
 </script>
 
 <template>
   <Teleport to="body">
-    <div class="fixed top-0 left-0 w-full h-full bg-black/20 transition-all duration-300 z-10" :class="show ? 'opacity-100' : 'opacity-0 pointer-events-none'" @click="show = !show"/>
+    <div 
+      class="fixed top-0 left-0 w-full h-full bg-black/20 dark:bg-transparent transition-all duration-300 z-10" 
+      :class="show ? 'opacity-100' : 'opacity-0 pointer-events-none'" 
+      @click="show = !show"
+    />
 
     <aside
       class="p-1 pr-0 fixed flex flex-col top-0 h-full w-72 shadow-2xl z-30 bg-stone-100 dark:bg-stone-900 border-r border-stone-300 dark:border-stone-700 transition-all duration-200"
@@ -77,7 +81,7 @@ onMounted(() => {
       </div>
 
       <div class="p-1.5 mb-2">
-        <!-- Note Button (fuck you mean "Note Button"? maybe "New Note Button" moron?) -->
+        <!-- New Note Button -->
         <button
           @click="$emit('new-note-click')"
           :class="[
@@ -86,15 +90,10 @@ onMounted(() => {
           ]"
         >
           <div class="relative flex w-full cursor-pointer items-center justify-center p-2">
-            <span
-              class="font-medium transition-transform duration-200 ease-out group-hover:-translate-x-6 select-none"
-            >
+            <span class="font-medium transition-transform duration-200 ease-out group-hover:-translate-x-6 select-none">
               New note
             </span>
-
-            <span
-              class="absolute right-3 opacity-0 translate-x-4 pointer-events-none transition-all duration-200 ease-out group-hover:opacity-100 group-hover:translate-x-0 select-none"
-            >
+            <span class="absolute right-3 opacity-0 translate-x-4 pointer-events-none transition-all duration-200 ease-out group-hover:opacity-100 group-hover:translate-x-0 select-none">
               <span class="inline-flex items-center rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 px-2 py-0.5 text-xs text-stone-500 dark:text-stone-400 shadow-sm dark:shadow-none">
                 <kbd class="font-sans font-semibold">Ctrl</kbd>
                 <span class="mx-1 text-stone-400 dark:text-stone-500">+</span>
@@ -113,15 +112,10 @@ onMounted(() => {
           ]"
         >
           <div class="relative flex w-full cursor-pointer items-center justify-center p-2">
-            <span
-              class="font-medium transition-transform duration-200 ease-out group-hover:-translate-x-6 select-none"
-            >
+            <span class="font-medium transition-transform duration-200 ease-out group-hover:-translate-x-6 select-none">
               Search
             </span>
-
-            <span
-              class="absolute right-3 opacity-0 translate-x-4 pointer-events-none transition-all duration-200 ease-out group-hover:opacity-100 group-hover:translate-x-0 select-none"
-            >
+            <span class="absolute right-3 opacity-0 translate-x-4 pointer-events-none transition-all duration-200 ease-out group-hover:opacity-100 group-hover:translate-x-0 select-none">
               <span class="inline-flex items-center rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 px-2 py-0.5 text-xs text-stone-500 dark:text-stone-400 shadow-sm dark:shadow-none">
                 <kbd class="font-sans font-semibold">Ctrl</kbd>
                 <span class="mx-1 text-stone-400 dark:text-stone-500">+</span>
@@ -132,68 +126,61 @@ onMounted(() => {
         </button>
       </div>
 
-      <div v-if="isLoading" class="p-2 my-auto text-center">
-        <div class="p-3 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/50 rounded-xl">
-          <p class="text-xs font-semibold text-sky-600 dark:text-sky-400 mb-1">
-            Loading...
-          </p>
-          <p class="text-[11px] text-sky-500/80 dark:text-sky-400/70 truncate">
-            It's gonna take a while
-          </p>
-        </div>
-      </div>
-
-      <div v-else-if="error === 'Failed to load notes from the server!'" class="p-2 my-auto text-center">
-        <div class="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 rounded-xl">
-          <p class="text-xs font-semibold text-rose-600 dark:text-rose-400 mb-1">
-            An error occurred!
-          </p>
-          <p class="text-[11px] text-rose-500/80 dark:text-rose-400/70 truncate">
-            {{ error }}
-          </p>
-        </div>
-      </div>
-
-      <div v-else class="overflow-y-auto custom-scrollbar">
-        <div v-if="storedNotes.length === 0" class="empty-state">
-          <div class="p-3 bg-stone-50 dark:bg-stone-950/40 border border-stone-200 dark:border-stone-900/50 rounded-xl">
-            <p class="text-xs font-semibold text-stone-600 dark:text-stone-400 mb-1">
-              You have no notes.
-            </p>
-            <p class="text-[11px] text-stone-500/80 dark:text-stone-400/70 truncate">
-              Make your first one!
-            </p>
+      <div class="overflow-y-auto custom-scrollbar flex-1 pr-1">
+        
+        <div v-if="isLoading && storedNotes.length === 0" class="p-2 text-center">
+          <div class="p-3 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/50 rounded-xl">
+            <p class="text-xs font-semibold text-sky-600 dark:text-sky-400 mb-1">Loading...</p>
+            <p class="text-[11px] text-sky-500/80 dark:text-sky-400/70 truncate">Fetching your notes</p>
           </div>
         </div>
 
-        <div v-else-if="storedNotes.length > 0" class="">
+        <div v-else-if="error" class="p-2 text-center">
+          <div class="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 rounded-xl">
+            <p class="text-xs font-semibold text-rose-600 dark:text-rose-400 mb-1">An error occurred!</p>
+            <p class="text-[11px] text-rose-500/80 dark:text-rose-400/70 truncate">{{ error }}</p>
+          </div>
+        </div>
+
+        <div v-else-if="storedNotes.length > 0">
           <SidebarButton
             v-for="note in storedNotes"
             :key="note.id"
-            @settings-click="handleSettingsClick(note.id, note.header,$event)"
+            @settings-click="handleSettingsClick(note.id, note.header, $event)"
           >
             {{ note.header }}
-          </SidebarButton>          
+          </SidebarButton>
+
+          <div v-if="!isFinished" class="p-2 text-center">
+            <button
+              @click="fetchNextNotes"
+              :class="[
+                'mb-2 relative w-full overflow-hidden rounded-full bg-white dark:bg-stone-800 p-0.5 text-stone-900 dark:text-stone-100 shadow dark:shadow-stone-700/50 transition-all duration-200 ease-out hover:shadow-lg dark:hover:bg-stone-700', 
+                (isLoading || error) ? 'cursor-not-allowed pointer-events-none opacity-50' : ''
+              ]"
+            >
+              <div class="relative flex w-full cursor-pointer items-center justify-center p-2">
+                <span class="font-medium transition-transform duration-200 ease-out select-none">
+                  {{ isLoading ? 'Loading...' : 'Load more' }}
+                </span>
+              </div>
+            </button>
+          </div>
         </div>
 
-        <div v-else class="">
-          <div class="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 rounded-xl">
-            <p class="text-xs font-semibold text-rose-600 dark:text-rose-400 mb-1">
-              An error occurred?...
-            </p>
-            <p class="text-[11px] text-rose-500/80 dark:text-rose-400/70 truncate">
-              How are you even here? Contact developers about this one.
-            </p>
+        <div v-else class="empty-state">
+          <div class="p-3 bg-stone-50 dark:bg-stone-950/40 border border-stone-200 dark:border-stone-900/50 rounded-xl text-center">
+            <p class="text-xs font-semibold text-stone-700 dark:text-stone-200 mb-1">You have no notes.</p>
+            <p class="text-[11px] text-stone-600/80 dark:text-stone-200/70 truncate">Make your first one!</p>
           </div>
         </div>
 
       </div>
 
       <slot name="bottom"/>
-
     </aside>
 
-    <!-- Notes Settings -->
+    <!-- Modals -->
     <SidebarSettingsWindow
       :show="isModalOpen"
       :position="modalPosition"
@@ -206,8 +193,6 @@ onMounted(() => {
       :note-header="selectedNoteHeader"
       @close="isDeleteModalOpen = false"
       @delete="tryToDeleteNote"
-    >
-
-    </NoteDeletionWindow>
+    />
   </Teleport>
 </template>

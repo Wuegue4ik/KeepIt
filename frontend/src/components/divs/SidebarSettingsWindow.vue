@@ -21,7 +21,8 @@ const modalStyle = computed(() => {
 defineEmits<{
   (e: 'close'): void,
   (e: 'rename'): void,
-  (e: 'delete'): void
+  (e: 'delete'): void,
+  (e: 'configure'): void
 }>()
 
 </script>
@@ -48,7 +49,7 @@ defineEmits<{
         <BaseButton
           variant="settings"
           class="w-full flex"
-          @click="$emit('delete')"
+          @click="$emit('configure')"
         >
           <SettingsIcon class="w-6 h-5 mr-2"/>
           <span>Configure</span>

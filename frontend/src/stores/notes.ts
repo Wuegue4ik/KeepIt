@@ -1,11 +1,20 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 import api from '@/services/api';
-import type { Note, NoteOnCreate } from '@/api/types';
+import type { Note, NoteOnCreate, PaginatedNotesResponse } from '@/api/types';
 
 export const useNotesStore = defineStore('notes', () => {
   const notes = ref<Note[]>([])
   const isLoading = ref<boolean>(false)
+  const isFinished = ref<boolean>(false)
+
+  const pagination = ref({
+    page: 1,
+    size: 30,
+    total: 0,
+    pages: 0
+  })
+
   const error = ref<string | null>(null)
   const totalNotes = computed(() => notes.value.length)
 
@@ -19,7 +28,7 @@ export const useNotesStore = defineStore('notes', () => {
 
   channel.onmessage = (ev) => {
     if (ev.data === "sync_notes") {
-      fetchNotes(true)
+      resetNotes()
     }
   }
 
@@ -27,21 +36,44 @@ export const useNotesStore = defineStore('notes', () => {
     channel.postMessage("sync_notes")
   }
 
-  const fetchNotes = async(isBackground = false) => {
-    if (!isBackground) {
-      isLoading.value = true
-    }
+  const fetchNextNotes = async() => {
+    if (isLoading.value || isFinished.value) return
+
+    isLoading.value = true
     error.value = null
 
     try {
-      const response = await api.get<Note[]>("/notes")
-      notes.value = response.data
+      const response = await api.get<PaginatedNotesResponse>("/notes", {
+        params: {
+          page: pagination.value.page,
+          size: pagination.value.size
+        }
+      })
+
+      const { items, total, pages } = response.data
+
+      notes.value.push(...items)
+      pagination.value.total = total
+      pagination.value.pages = pages
+
+      if (pagination.value.page >= pages || items.length === 0) {
+        isFinished.value = true
+      } else {
+        pagination.value.page++
+      }
     } catch (err: any) {
       console.error("Error retrieving notes:", err)
       error.value = "Failed to load notes from the server!"
     } finally {
       isLoading.value = false
     }
+  }
+
+  const resetNotes = async() => {
+    notes.value = []
+    pagination.value.page = 1
+    isFinished.value = false
+    await fetchNextNotes()
   }
 
   const addNote = async(newNoteData: NoteOnCreate) => {
@@ -92,9 +124,12 @@ export const useNotesStore = defineStore('notes', () => {
     notes,
     storedNotes,
     isLoading,
+    isFinished,
     error,
     totalNotes,
-    fetchNotes,
+    pagination,
+    fetchNextNotes,
+    resetNotes,
     addNote,
     editNote,
     deleteNote

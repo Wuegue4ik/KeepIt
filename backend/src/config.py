@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     @property
     def DATABASE_URL(self) -> str:
         return f"postgresql+asyncpg://{self.DB_LOGIN}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+
+    REDIS_URL: str
     
     model_config = SettingsConfigDict(
         env_file="../.env",

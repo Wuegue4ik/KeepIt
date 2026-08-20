@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AddNoteNotesPostData, AddNoteNotesPostErrors, AddNoteNotesPostResponses, DeleteNoteNotesNoteIdDeleteData, DeleteNoteNotesNoteIdDeleteErrors, DeleteNoteNotesNoteIdDeleteResponses, EditNoteNotesNoteIdPutData, EditNoteNotesNoteIdPutErrors, EditNoteNotesNoteIdPutResponses, GetNotesNotesGetData, GetNotesNotesGetResponses, ViewNoteNotesNoteIdGetData, ViewNoteNotesNoteIdGetErrors, ViewNoteNotesNoteIdGetResponses } from './types.gen';
+import type { AddNoteNotesPostData, AddNoteNotesPostErrors, AddNoteNotesPostResponses, DeleteNoteNotesNoteIdDeleteData, DeleteNoteNotesNoteIdDeleteErrors, DeleteNoteNotesNoteIdDeleteResponses, EditNoteNotesNoteIdPutData, EditNoteNotesNoteIdPutErrors, EditNoteNotesNoteIdPutResponses, GetNotesNotesGetData, GetNotesNotesGetErrors, GetNotesNotesGetResponses, ViewNoteNotesNoteIdGetData, ViewNoteNotesNoteIdGetErrors, ViewNoteNotesNoteIdGetResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -21,7 +21,7 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 /**
  * Get Notes
  */
-export const getNotesNotesGet = <ThrowOnError extends boolean = false>(options?: Options<GetNotesNotesGetData, ThrowOnError>): RequestResult<GetNotesNotesGetResponses, unknown, ThrowOnError> => (options?.client ?? client).get<GetNotesNotesGetResponses, unknown, ThrowOnError>({ url: '/notes', ...options });
+export const getNotesNotesGet = <ThrowOnError extends boolean = false>(options?: Options<GetNotesNotesGetData, ThrowOnError>): RequestResult<GetNotesNotesGetResponses, GetNotesNotesGetErrors, ThrowOnError> => (options?.client ?? client).get<GetNotesNotesGetResponses, GetNotesNotesGetErrors, ThrowOnError>({ url: '/notes', ...options });
 
 /**
  * Add Note

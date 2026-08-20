@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
+from typing import Sequence
 
 
 class TagBase(BaseModel):
@@ -27,3 +28,11 @@ class Note(NoteBase):
     tags: list[Tag]
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PaginatedNotesResponse(BaseModel):
+    items: Sequence[Note]
+    total: int
+    page: int
+    size: int
+    pages: int

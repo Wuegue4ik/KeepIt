@@ -13,7 +13,7 @@ defineEmits<{
 
 <template>
   <Modal :class="show ? 'opacity-100' : 'opacity-0 pointer-events-none'">
-    <div class="fixed inset-0 -z-10 bg-black/20" @click="$emit('close')"/>
+    <div class="fixed inset-0 -z-10 bg-black/20 dark:bg-transparent" @click="$emit('close')"/>
 
     <div class="flex shrink-0 justify-between items-center p-2 border-b border-stone-200 dark:border-stone-700">
       <span class="pl-2 font-bold text-stone-600 dark:text-stone-300">Delete note "{{ noteHeader }}"?</span>

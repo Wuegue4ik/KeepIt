@@ -6,6 +6,7 @@ pkgs.mkShell {
 
     python312Packages.fastapi
     python312Packages.uvicorn
+    python312Packages.redis
     python312Packages.pydantic
     python312Packages.pydantic-settings
 
@@ -21,5 +22,6 @@ pkgs.mkShell {
     nodejs
 
     dbeaver-bin
+    redis
   ];
 }
