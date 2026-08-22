@@ -16,10 +16,14 @@
     "generate-api": "openapi-ts"
   },
   "dependencies": {
+    "@tiptap/pm": "^3.30.2",
+    "@tiptap/starter-kit": "^3.30.2",
+    "@tiptap/vue-3": "^3.30.2",
     "@vueuse/core": "^14.4.0",
     "axios": "^1.18.1",
     "pinia": "^3.0.4",
     "tailwindcss": "^4.3.3",
+    "tiptap-markdown": "^0.9.0",
     "vue": "^3.5.38",
     "vue-router": "^5.1.0",
     "vue3-toastify": "^0.2.9"
