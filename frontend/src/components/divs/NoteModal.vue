@@ -143,17 +143,6 @@ const handleSubmit = async() => {
                 <span class="text-sm font-medium text-stone-600 dark:text-stone-300 group-hover:text-stone-900 dark:group-hover:text-stone-100 transition-colors">
                   Favorite
                 </span>
-
-                <div class="relative flex items-center group/tooltip">
-                  ?
-
-                  <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:flex flex-col items-center w-48 z-20 pointer-events-none">
-                    <div class="bg-stone-800 dark:bg-stone-100 text-stone-100 dark:text-stone-900 text-xs rounded-lg py-1.5 px-2.5 shadow-xl text-center leading-tight font-normal">
-                      Favorite notes/groups are showed on top of a sidebar
-                    </div>
-                    <div class="w-2 h-2 -mt-1 rotate-45 bg-stone-800 dark:bg-stone-100"></div>
-                  </div>
-                </div>
               </div>
 
               <div class="relative inline-flex items-center">
