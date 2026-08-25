@@ -20,6 +20,7 @@ const ui = useUiStore()
     
     <div class="flex-none p-1 border-r border-stone-200 dark:border-stone-800">
       <BaseButton
+        class="sticky top-1"
         variant="sidebar" 
         @click="ui.isSidebarOpen = !ui.isSidebarOpen"
       >
@@ -27,7 +28,7 @@ const ui = useUiStore()
       </BaseButton>
     </div>
 
-    <main class="flex-1 w-full min-w-0">
+    <main class="flex-1 w-full min-w-0 bg-stone-100">
       <RouterView />
     </main>
 

@@ -104,7 +104,7 @@ onMounted(() => {
         </button>
 
         <!-- Search Button -->
-        <button
+        <!-- <button
           @click="$emit('search-click')"
           :class="[
             'mb-2 group relative w-full overflow-hidden rounded-full bg-white dark:bg-stone-800 p-0.5 text-stone-900 dark:text-stone-100 shadow dark:shadow-stone-700/50 transition-all duration-200 ease-out hover:shadow-lg dark:hover:bg-stone-700', 
@@ -123,7 +123,7 @@ onMounted(() => {
               </span>
             </span>
           </div>
-        </button>
+        </button> -->
       </div>
 
       <div class="overflow-y-auto custom-scrollbar flex-1 pr-1">

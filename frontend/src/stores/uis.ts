@@ -43,13 +43,13 @@ export const useUiStore = defineStore('ui', () => {
     }
   })
 
-  onKeyStroke('k', (e) => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault()
-      isSidebarOpen.value = false
-      isModalOpen.value = false
-    }
-  })
+  // onKeyStroke('k', (e) => {
+  //   if (e.ctrlKey || e.metaKey) {
+  //     e.preventDefault()
+  //     isSidebarOpen.value = false
+  //     isModalOpen.value = false
+  //   }
+  // })
 
   return {
     isSidebarOpen,

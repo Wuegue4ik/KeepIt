@@ -16,6 +16,7 @@
     "generate-api": "openapi-ts"
   },
   "dependencies": {
+    "@floating-ui/vue": "^2.0.1",
     "@tiptap/extension-highlight": "^3.30.2",
     "@tiptap/extension-subscript": "^3.30.2",
     "@tiptap/extension-superscript": "^3.30.2",
