@@ -28,7 +28,7 @@ const ui = useUiStore()
       </BaseButton>
     </div>
 
-    <main class="flex-1 w-full min-w-0 bg-stone-100">
+    <main class="flex-1 w-full min-w-0 bg-stone-100 dark:bg-stone-800">
       <RouterView />
     </main>
 

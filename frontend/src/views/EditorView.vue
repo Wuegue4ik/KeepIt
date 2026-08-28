@@ -10,6 +10,7 @@ import TaskItem from '@tiptap/extension-task-item'
 import { ref } from 'vue';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 import { Markdown } from 'tiptap-markdown';
+import { onClickOutside } from '@vueuse/core'
 import { useFloating, offset, flip, shift, autoUpdate } from '@floating-ui/vue'
 
 const editor = useEditor({
@@ -61,10 +62,17 @@ const { floatingStyles: listsFloatingStyles } = useFloating(listsRef, listsFloat
     shift({padding: 8})
   ]
 })
+
+onClickOutside(headersFloating, () => {
+  isHeadersOpen.value = false;
+})
+onClickOutside(listsFloating, () => {
+  isListsOpen.value = false;
+})
 </script>
 
 <template>
-  <header class="bg-white border-b border-stone-200 dark:border-stone-800 p-1 sticky top-0 z-10">
+  <header class="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 p-1 sticky top-0 z-10">
     <div class="flex flex-wrap gap-0.5 max-h-30 overflow-y-auto justify-center">
       <BaseButton
         variant="sidebar"
@@ -74,7 +82,7 @@ const { floatingStyles: listsFloatingStyles } = useFloating(listsRef, listsFloat
       >
         >/
       </BaseButton>
-      <div class="h-9 border border-stone-200"/>
+      <div class="h-9 border border-stone-200 dark:border-stone-700"/>
       
       <BaseButton
         variant="sidebar"
@@ -116,7 +124,7 @@ const { floatingStyles: listsFloatingStyles } = useFloating(listsRef, listsFloat
       >
         H
       </BaseButton>
-      <div class="h-9 border border-stone-200"/>
+      <div class="h-9 border border-stone-200 dark:border-stone-700"/>
 
       <div class="flex">
         <BaseButton
@@ -191,7 +199,7 @@ const { floatingStyles: listsFloatingStyles } = useFloating(listsRef, listsFloat
           </BaseButton>
         </div>
       </Teleport>
-      <div class="h-9 border border-stone-200"/>
+      <div class="h-9 border border-stone-200 dark:border-stone-700"/>
 
       <BaseButton
         variant="sidebar"
@@ -230,11 +238,11 @@ const { floatingStyles: listsFloatingStyles } = useFloating(listsRef, listsFloat
   </header>
 
   <main>
-    <div class="bg-stone-100 flex overflow-y-auto custom-scrollbar p-8 flex-1 min-h-full">
-      <div class="bg-white min-h-full flex flex-1 border border-stone-200">
+    <div class="bg-stone-100 dark:bg-stone-800 flex overflow-y-auto custom-scrollbar p-8 flex-1 min-h-full">
+      <div class="bg-white min-h-full flex flex-1 border border-stone-200 dark:border-stone-900 dark:bg-stone-700">
         <EditorContent :editor="editor" class="flex-1 flex" />
       </div>
-      <div v-if="isMDViewOpen" class="bg-white min-h-full flex flex-1 border border-stone-200 p-8 ml-8">
+      <div v-if="isMDViewOpen" class="bg-white dark:bg-stone-700 min-h-full flex flex-1 border border-stone-200 dark:border-stone-900 p-8 ml-8">
         <textarea 
           :value="getMarkdown()" 
           readonly
@@ -250,7 +258,7 @@ const { floatingStyles: listsFloatingStyles } = useFloating(listsRef, listsFloat
 @import "tailwindcss";
 
 .is-active {
-  @apply bg-stone-200;
+  @apply bg-stone-200 dark:bg-stone-800;
 }
 
 .header-button {

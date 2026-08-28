@@ -8,10 +8,11 @@ import { useNotesStore } from '@/stores/notes.ts';
 import { storeToRefs } from 'pinia';
 import NoteDeletionWindow from './NoteDeletionWindow.vue';
 import { toast } from 'vue3-toastify';
+import { onClickOutside } from '@vueuse/core'
+import { useFloating, offset, flip, shift, autoUpdate } from '@floating-ui/vue'
 
 const isModalOpen = defineModel<boolean>('is-modal-open', { required: true });
 const isDeleteModalOpen = defineModel<boolean>('is-delete-modal-open', { required: true });
-const modalPosition = ref({ top: 0, left: 0 });
 const selectedNoteId = ref<number>();
 const selectedNoteHeader = ref<string>('');
 
@@ -19,6 +20,19 @@ const notesStore = useNotesStore();
 const { error, isLoading, isFinished, storedNotes } = storeToRefs(notesStore);
 const { fetchNextNotes, deleteNote } = notesStore;
 const show = defineModel<boolean>('show', { required: true });
+
+const settingsRef = ref<HTMLElement | null>(null)
+const settingsFloating = ref<HTMLElement | null>(null)
+const { floatingStyles: settingsFloatingStyles } = useFloating(settingsRef, settingsFloating, {
+  strategy: 'fixed',
+  placement: 'bottom-start',
+  whileElementsMounted: autoUpdate,
+  middleware: [
+    offset(6),
+    flip(),
+    shift({ padding: 8 })
+  ]
+})
 
 const handleDeleteClick = () => {
   isDeleteModalOpen.value = true;
@@ -37,13 +51,8 @@ const tryToDeleteNote = () => {
 };
 
 const handleSettingsClick = (noteId: number, noteHeader: string, event: MouseEvent) => {
-  const target = event.currentTarget as HTMLElement;
-  const rect = target.getBoundingClientRect();
+  settingsRef.value = event.currentTarget as HTMLElement;
 
-  modalPosition.value = {
-    top: rect.bottom + 4,
-    left: rect.left
-  };
   selectedNoteId.value = noteId;
   selectedNoteHeader.value = noteHeader;
 
@@ -55,6 +64,10 @@ defineEmits<{
   (e: 'search-click'): void
 }>();
 
+onClickOutside(settingsFloating, () => {
+  isModalOpen.value = false;
+})
+
 onMounted(() => {
   if (storedNotes.value.length === 0) {
     fetchNextNotes();
@@ -65,7 +78,7 @@ onMounted(() => {
 <template>
   <Teleport to="body">
     <div 
-      class="fixed top-0 left-0 w-full h-full bg-black/20 dark:bg-transparent transition-all duration-300 z-10" 
+      class="fixed top-0 left-0 w-full h-full bg-black/20 dark:bg-stone-200/5 transition-all duration-300 z-10" 
       :class="show ? 'opacity-100' : 'opacity-0 pointer-events-none'" 
       @click="show = !show"
     />
@@ -181,12 +194,19 @@ onMounted(() => {
     </aside>
 
     <!-- Modals -->
-    <SidebarSettingsWindow
-      :show="isModalOpen"
-      :position="modalPosition"
-      @close="isModalOpen = false"
-      @delete="handleDeleteClick"
-    />
+    <div 
+      v-if="isModalOpen" 
+      ref="settingsFloating" 
+      :style="settingsFloatingStyles" 
+      class="z-50 fixed"
+    >
+      <SidebarSettingsWindow
+        :show="isModalOpen"
+        :style="settingsFloatingStyles"
+        @close="isModalOpen = false"
+        @delete="handleDeleteClick"
+      />
+    </div>
 
     <NoteDeletionWindow
       :show="isDeleteModalOpen"
