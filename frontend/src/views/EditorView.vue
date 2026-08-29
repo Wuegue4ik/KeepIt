@@ -7,11 +7,28 @@ import Superscript from '@tiptap/extension-superscript'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 
-import { ref } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 import { Markdown } from 'tiptap-markdown';
 import { onClickOutside } from '@vueuse/core'
 import { useFloating, offset, flip, shift, autoUpdate } from '@floating-ui/vue'
+import { useRoute } from 'vue-router';
+import { useNotesStore } from '@/stores/notes';
+import { storeToRefs } from 'pinia';
+import { toast } from 'vue3-toastify';
+import { onKeyStroke } from '@vueuse/core';
+
+onKeyStroke('s', (e) => {
+  if (e.ctrlKey || e.metaKey) {
+    e.preventDefault();
+    handleSave();
+  }
+});
+
+const route = useRoute();
+const notesStore = useNotesStore();
+const { currentNote } = storeToRefs(notesStore);
+const { fetchNoteById, editNote } = notesStore;
 
 const editor = useEditor({
   extensions: [
@@ -29,6 +46,49 @@ const editor = useEditor({
     },
   },
 })
+
+const isSaving = ref(false);
+
+const handleSave = async () => {
+  if (!currentNote.value || isSaving.value) return;
+
+  const markdownContent = getMarkdown();
+  isSaving.value = true;
+
+  try {
+    await editNote(currentNote.value.id, {
+      header: currentNote.value.header,
+      text: markdownContent,
+    });
+    toast.success('Note saved successfully!');
+  } catch (err) {
+    console.error('Save failed:', err);
+    toast.error('Failed to save note.');
+  } finally {
+    isSaving.value = false;
+  }
+};
+
+const loadNoteToEditor = async (id: number) => {
+  const note = await fetchNoteById(id);
+  if (note && editor.value) {
+    editor.value.commands.setContent(note.text || '');
+  }
+}
+
+watch(
+  () => route.params.id,
+  (newId) => {
+    if (newId) {
+      loadNoteToEditor(Number(newId));
+    } else {
+      currentNote.value = null;
+      editor.value?.commands.setContent('');
+    }
+  },
+  { immediate: true }
+);
+
 const getMarkdown = () => {
   if (!editor.value) return ''
 
@@ -72,7 +132,17 @@ onClickOutside(listsFloating, () => {
 </script>
 
 <template>
-  <header class="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 p-1 sticky top-0 z-10">
+  <header class="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 p-1 sticky top-0 z-10 flex items-center justify-between">
+    <div class="flex items-center">
+      <input 
+        v-if="currentNote"
+        v-model="currentNote.header" 
+        type="text" 
+        placeholder="Note title..."
+        class="font-medium text-stone-800 dark:text-stone-100 bg-transparent focus:outline-none border border-transparent hover:border-stone-300 dark:hover:border-stone-700 focus:border-stone-300 dark:focus:border-stone-700 px-2 py-1 rounded transition-colors"
+      />
+      <span v-else class="text-stone-400 italic px-2">No note selected</span>
+    </div>
     <div class="flex flex-wrap gap-0.5 max-h-30 overflow-y-auto justify-center">
       <BaseButton
         variant="sidebar"
@@ -138,7 +208,7 @@ onClickOutside(listsFloating, () => {
         </BaseButton>
       </div>
       <Teleport to="body">
-        <div v-if="isHeadersOpen" ref="headersFloating" :style="headersFloatingStyles" class="border border-stone-200 rounded-lg p-px w-37 bg-white">
+        <div v-if="isHeadersOpen" ref="headersFloating" :style="headersFloatingStyles" class="border border-stone-200 dark:border-stone-800 rounded-lg p-px w-37 bg-white dark:bg-stone-900">
           <BaseButton
             @click="isHeadersOpen = !isHeadersOpen; editor?.chain().focus().toggleHeading({ level: 1 }).run()"
             variant="sidebar"
@@ -175,7 +245,7 @@ onClickOutside(listsFloating, () => {
         </BaseButton>
       </div>
       <Teleport to="body">
-        <div v-if="isListsOpen" ref="listsFloating" :style="listsFloatingStyles" class="border border-stone-200 rounded-lg p-px w-37 bg-white">
+        <div v-if="isListsOpen" ref="listsFloating" :style="listsFloatingStyles" class="border border-stone-200 dark:border-stone-800 rounded-lg p-px w-37 bg-white dark:bg-stone-900">
           <BaseButton
             @click="isListsOpen = !isListsOpen; editor?.chain().focus().toggleOrderedList().run()"
             variant="sidebar"
@@ -234,6 +304,9 @@ onClickOutside(listsFloating, () => {
         ``
       </BaseButton>
       
+    </div>
+    <div class="">
+      <BaseButton variant="primary" class="min-w-16 justify-center h-9" :disabled="isSaving || !currentNote" @click="handleSave">{{ isSaving ? 'Saving...' : 'Save' }}</BaseButton>
     </div>
   </header>
 

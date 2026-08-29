@@ -3,6 +3,7 @@ import SidebarIcon from '../svgs/SidebarIcon.vue';
 import BaseButton from '../buttons/BaseButton.vue';
 import SidebarButton from '../buttons/SidebarButton.vue';
 import SidebarSettingsWindow from './SidebarSettingsWindow.vue';
+import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import { useNotesStore } from '@/stores/notes.ts';
 import { storeToRefs } from 'pinia';
@@ -17,7 +18,7 @@ const selectedNoteId = ref<number>();
 const selectedNoteHeader = ref<string>('');
 
 const notesStore = useNotesStore();
-const { error, isLoading, isFinished, storedNotes } = storeToRefs(notesStore);
+const { error, isLoading, isInitialLoading, isFinished, storedNotes } = storeToRefs(notesStore);
 const { fetchNextNotes, deleteNote } = notesStore;
 const show = defineModel<boolean>('show', { required: true });
 
@@ -33,6 +34,13 @@ const { floatingStyles: settingsFloatingStyles } = useFloating(settingsRef, sett
     shift({ padding: 8 })
   ]
 })
+
+const router = useRouter();
+
+const openNote = (id: number) => {
+  router.push({ name: 'note-editor', params: { id } });
+  show.value = false;
+};
 
 const handleDeleteClick = () => {
   isDeleteModalOpen.value = true;
@@ -70,7 +78,7 @@ onClickOutside(settingsFloating, () => {
 
 onMounted(() => {
   if (storedNotes.value.length === 0) {
-    fetchNextNotes();
+    notesStore.resetNotes();
   }
 });
 </script>
@@ -141,7 +149,7 @@ onMounted(() => {
 
       <div class="overflow-y-auto custom-scrollbar flex-1 pr-1">
         
-        <div v-if="isLoading && storedNotes.length === 0" class="p-2 text-center">
+        <div v-if="isInitialLoading" class="p-2 text-center">
           <div class="p-3 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/50 rounded-xl">
             <p class="text-xs font-semibold text-sky-600 dark:text-sky-400 mb-1">Loading...</p>
             <p class="text-[11px] text-sky-500/80 dark:text-sky-400/70 truncate">Fetching your notes</p>
@@ -159,6 +167,7 @@ onMounted(() => {
           <SidebarButton
             v-for="note in storedNotes"
             :key="note.id"
+            @menu-click="openNote(note.id)"
             @settings-click="handleSettingsClick(note.id, note.header, $event)"
           >
             {{ note.header }}

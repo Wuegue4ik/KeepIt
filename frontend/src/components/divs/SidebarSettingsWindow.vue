@@ -23,15 +23,6 @@ defineEmits<{
     class="bg-white dark:bg-stone-800 shadow-xl rounded-2xl p-2"
   >
     <div>
-      <!-- Rename -->
-        <BaseButton
-          variant="settings"
-          class="w-full flex"
-          @click="$emit('rename')"
-        >
-          <EditIcon class="w-6 h-5 mr-2"/>
-          <span>Rename</span>
-        </BaseButton>
       <!-- Delete -->
         <BaseButton
           variant="settings"

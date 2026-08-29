@@ -14,11 +14,12 @@ const router = createRouter({
           name: 'home',
           component: EditorView,
         },
-        // {
-        //   path: 'profile',
-        //   name: 'profile',
-        //   component: 
-        // }
+        {
+          path: 'notes/:id',
+          name: 'note-editor',
+          component: EditorView,
+          props: true
+        }
       ],
     },
   ],
