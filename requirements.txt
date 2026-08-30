@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+
+redis
+
+pydantic
+pydantic-settings
+
+sqlalchemy
+asyncpg
+psycopg2-binary
+alembic
+greenlet
+
+mypy
+python-dotenv
